@@ -39,6 +39,9 @@ const github = __importStar(require("@actions/github"));
 const jose_1 = require("jose");
 const fs = __importStar(require("fs/promises"));
 const path = __importStar(require("path"));
+const child_process_1 = require("child_process");
+const util_1 = require("util");
+const execFileAsync = (0, util_1.promisify)(child_process_1.execFile);
 function parseBoolean(value, defaultValue) {
     if (value === undefined || value === '') {
         return defaultValue;
@@ -93,7 +96,12 @@ async function verifyToken(filePath, jwksUrl, issuer, expectedRepo, expectedComm
             return { file: filePath, ok: false, reason: `repo mismatch: ${payload.repo} !== ${expectedRepo}` };
         }
         if (payload.commit !== expectedCommit) {
-            return { file: filePath, ok: false, reason: `commit mismatch: ${payload.commit} !== ${expectedCommit}` };
+            const candidate = typeof payload.commit === 'string' ? payload.commit : '';
+            const isOk = candidate ? await isAncestorCommit(candidate, expectedCommit) : false;
+            if (!isOk) {
+                return { file: filePath, ok: false, reason: `commit mismatch: ${payload.commit} !== ${expectedCommit}` };
+            }
+            core.warning(`commit mismatch accepted (ancestor): ${candidate} -> ${expectedCommit}`);
         }
         if (payload.sub !== expectedAuthor) {
             return { file: filePath, ok: false, reason: `author mismatch: ${payload.sub} !== ${expectedAuthor}` };
@@ -106,6 +114,17 @@ async function verifyToken(filePath, jwksUrl, issuer, expectedRepo, expectedComm
             return { file: filePath, ok: false, reason: 'token expired' };
         }
         return { file: filePath, ok: false, reason: `signature or claim verification failed: ${message}` };
+    }
+}
+async function isAncestorCommit(candidate, headSha) {
+    try {
+        await execFileAsync('git', ['merge-base', '--is-ancestor', candidate, headSha], {
+            cwd: process.env.GITHUB_WORKSPACE || process.cwd(),
+        });
+        return true;
+    }
+    catch {
+        return false;
     }
 }
 async function run() {
