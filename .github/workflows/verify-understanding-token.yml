@@ -13,6 +13,6 @@ jobs:
         working-directory: ./.github/actions/bansou
       - uses: ./.github/actions/bansou
         with:
-          issuer: ${{ vars.BANSOU_ISSUER }}
-          jwks_url: ${{ vars.BANSOU_JWKS_URL }}
+          issuer: https://bansou-server.soraki0101.workers.dev
+          jwks_url: https://bansou-server.soraki0101.workers.dev/.well-known/jwks.json
           required_quiz_id: core-pr
