@@ -1,0 +1,15 @@
+name: Verify BANSOU Token
+
+on:
+  pull_request:
+
+jobs:
+  bansou:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/bansou
+        with:
+          issuer: ${{ vars.BANSOU_ISSUER }}
+          jwks_url: ${{ vars.BANSOU_JWKS_URL }}
+          required_quiz_id: core-pr
