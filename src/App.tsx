@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [text, setText] = useState('SecHack365')
+  const [text, setText] = useState('HelloWorld！！')
 
   return (
     <div className="app">
