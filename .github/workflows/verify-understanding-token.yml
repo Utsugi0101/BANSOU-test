@@ -1,0 +1,23 @@
+name: Verify BANSOU Token
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  bansou:
+    name: BANSOU Gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify BANSOU attestation
+        uses: ./.github/actions/bansou
+        with:
+          issuer: https://bansou-server.soraki0101.workers.dev
+          jwks_url: https://bansou-server.soraki0101.workers.dev/.well-known/jwks.json
+          required_quiz_id: core-pr
