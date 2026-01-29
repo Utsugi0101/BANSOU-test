@@ -26,6 +26,10 @@ inputs:
     description: "Allow attestation commit to be an ancestor of head_sha"
     required: false
     default: "false"
+  fail_on_invalid:
+    description: "Fail if any invalid attestation is found"
+    required: false
+    default: "true"
   head_sha:
     description: "PR head SHA to verify against"
     required: false
@@ -54,6 +58,7 @@ runs:
         INPUT_ATTESTATIONS_DIR: ${{ inputs.attestations_dir }}
         INPUT_FAIL_ON_MISSING: ${{ inputs.fail_on_missing }}
         INPUT_ALLOW_ANCESTOR: ${{ inputs.allow_ancestor }}
+        INPUT_FAIL_ON_INVALID: ${{ inputs.fail_on_invalid }}
         INPUT_HEAD_SHA: ${{ inputs.head_sha }}
         INPUT_PR_AUTHOR: ${{ inputs.pr_author }}
         INPUT_REPO: ${{ inputs.repo }}
