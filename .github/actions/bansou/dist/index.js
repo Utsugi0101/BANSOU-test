@@ -78,7 +78,7 @@ async function collectJwtFiles(rootDir) {
     }
     return results;
 }
-async function verifyToken(filePath, jwksUrl, issuer, expectedRepo, expectedCommit, expectedAuthor) {
+async function verifyToken(filePath, jwksUrl, issuer, expectedRepo, expectedCommit, expectedAuthor, allowAncestor) {
     let token;
     try {
         token = (await fs.readFile(filePath, 'utf8')).trim();
@@ -97,6 +97,9 @@ async function verifyToken(filePath, jwksUrl, issuer, expectedRepo, expectedComm
         }
         if (payload.commit !== expectedCommit) {
             const candidate = typeof payload.commit === 'string' ? payload.commit : '';
+            if (!allowAncestor) {
+                return { file: filePath, ok: false, reason: `commit mismatch: ${payload.commit} !== ${expectedCommit}` };
+            }
             const isOk = candidate ? await isAncestorCommit(candidate, expectedCommit) : false;
             if (!isOk) {
                 return { file: filePath, ok: false, reason: `commit mismatch: ${payload.commit} !== ${expectedCommit}` };
@@ -133,6 +136,7 @@ async function run() {
     const requiredQuizId = core.getInput('required_quiz_id', { required: true });
     const attestationsDir = core.getInput('attestations_dir') || '.bansou/attestations';
     const failOnMissing = parseBoolean(core.getInput('fail_on_missing'), true);
+    const allowAncestor = parseBoolean(core.getInput('allow_ancestor'), false);
     const context = github.context;
     const prHeadSha = context.payload.pull_request?.head?.sha;
     const prAuthor = context.payload.pull_request?.user?.login;
@@ -168,7 +172,7 @@ async function run() {
     let invalidCount = 0;
     let requiredQuizFound = false;
     for (const file of files) {
-        const result = await verifyToken(file, jwksUrl, issuer, repo, headSha, author);
+        const result = await verifyToken(file, jwksUrl, issuer, repo, headSha, author, allowAncestor);
         if (!result.ok) {
             invalidCount += 1;
             core.error(`${path.relative(process.cwd(), result.file)}: ${result.reason}`);

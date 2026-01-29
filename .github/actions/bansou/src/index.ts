@@ -61,7 +61,8 @@ async function verifyToken(
   issuer: string,
   expectedRepo: string,
   expectedCommit: string,
-  expectedAuthor: string
+  expectedAuthor: string,
+  allowAncestor: boolean
 ): Promise<VerifyResult> {
   let token: string;
   try {
@@ -84,6 +85,9 @@ async function verifyToken(
 
     if (payload.commit !== expectedCommit) {
       const candidate = typeof payload.commit === 'string' ? payload.commit : '';
+      if (!allowAncestor) {
+        return { file: filePath, ok: false, reason: `commit mismatch: ${payload.commit} !== ${expectedCommit}` };
+      }
       const isOk = candidate ? await isAncestorCommit(candidate, expectedCommit) : false;
       if (!isOk) {
         return { file: filePath, ok: false, reason: `commit mismatch: ${payload.commit} !== ${expectedCommit}` };
@@ -122,6 +126,7 @@ async function run(): Promise<void> {
   const requiredQuizId = core.getInput('required_quiz_id', { required: true });
   const attestationsDir = core.getInput('attestations_dir') || '.bansou/attestations';
   const failOnMissing = parseBoolean(core.getInput('fail_on_missing'), true);
+  const allowAncestor = parseBoolean(core.getInput('allow_ancestor'), false);
 
   const context = github.context;
   const prHeadSha = context.payload.pull_request?.head?.sha;
@@ -167,7 +172,7 @@ async function run(): Promise<void> {
   let requiredQuizFound = false;
 
   for (const file of files) {
-    const result = await verifyToken(file, jwksUrl, issuer, repo, headSha, author);
+    const result = await verifyToken(file, jwksUrl, issuer, repo, headSha, author, allowAncestor);
     if (!result.ok) {
       invalidCount += 1;
       core.error(`${path.relative(process.cwd(), result.file)}: ${result.reason}`);
