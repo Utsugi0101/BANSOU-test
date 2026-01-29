@@ -137,6 +137,7 @@ async function run() {
     const attestationsDir = core.getInput('attestations_dir') || '.bansou/attestations';
     const failOnMissing = parseBoolean(core.getInput('fail_on_missing'), true);
     const allowAncestor = parseBoolean(core.getInput('allow_ancestor'), false);
+    const failOnInvalid = parseBoolean(core.getInput('fail_on_invalid'), true);
     const context = github.context;
     const prHeadSha = context.payload.pull_request?.head?.sha;
     const prAuthor = context.payload.pull_request?.user?.login;
@@ -170,6 +171,7 @@ async function run() {
     }
     core.info(`Found ${files.length} attestation file(s)`);
     let invalidCount = 0;
+    let validCount = 0;
     let requiredQuizFound = false;
     for (const file of files) {
         const result = await verifyToken(file, jwksUrl, issuer, repo, headSha, author, allowAncestor);
@@ -178,11 +180,16 @@ async function run() {
             core.error(`${path.relative(process.cwd(), result.file)}: ${result.reason}`);
             continue;
         }
+        validCount += 1;
         if (result.payload?.quiz_id === requiredQuizId) {
             requiredQuizFound = true;
         }
     }
-    if (invalidCount > 0) {
+    if (validCount === 0) {
+        core.setFailed('No valid attestations found');
+        return;
+    }
+    if (invalidCount > 0 && failOnInvalid) {
         core.setFailed(`Invalid attestations: ${invalidCount}`);
         return;
     }

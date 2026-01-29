@@ -27,6 +27,7 @@ jobs:
 - `required_quiz_id` (required): Required `quiz_id` that must exist in at least one valid attestation.
 - `attestations_dir` (optional, default `.bansou/attestations`): Directory to scan for `*.jwt` files.
 - `fail_on_missing` (optional, default `true`): Fail if no JWT files are found.
+- `fail_on_invalid` (optional, default `true`): Fail if any invalid JWT is found (set to `false` to ignore invalid files).
 - `head_sha` (optional): PR head SHA to verify against. Defaults to the PR head SHA from GitHub context.
 - `pr_author` (optional): PR author (expected `sub`). Defaults to the PR author from GitHub context.
 - `repo` (optional): Repository full name (`owner/repo`). Defaults to `GITHUB_REPOSITORY`.

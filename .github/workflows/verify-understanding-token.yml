@@ -21,3 +21,4 @@ jobs:
           issuer: https://bansou-server.soraki0101.workers.dev
           jwks_url: https://bansou-server.soraki0101.workers.dev/.well-known/jwks.json
           required_quiz_id: core-pr
+          allow_ancestor: "true"
