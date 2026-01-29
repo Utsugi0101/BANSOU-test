@@ -32,5 +32,23 @@ inputs:
     description: "Repository full name (owner/repo) to verify against"
     required: false
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+    - name: Install dependencies
+      run: npm ci --omit=dev --prefix "${{ github.action_path }}"
+      shell: bash
+    - name: Verify BANSOU attestation
+      run: node "${{ github.action_path }}/dist/index.js"
+      shell: bash
+      env:
+        INPUT_ISSUER: ${{ inputs.issuer }}
+        INPUT_JWKS_URL: ${{ inputs.jwks_url }}
+        INPUT_REQUIRED_QUIZ_ID: ${{ inputs.required_quiz_id }}
+        INPUT_ATTESTATIONS_DIR: ${{ inputs.attestations_dir }}
+        INPUT_FAIL_ON_MISSING: ${{ inputs.fail_on_missing }}
+        INPUT_HEAD_SHA: ${{ inputs.head_sha }}
+        INPUT_PR_AUTHOR: ${{ inputs.pr_author }}
+        INPUT_REPO: ${{ inputs.repo }}
