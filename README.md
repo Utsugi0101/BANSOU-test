@@ -33,3 +33,7 @@ GitHub の Repository Variables に以下を設定してください。
 ```sh
 BANSOU_GATE_API_TOKEN=<token> BANSOU_SUB=Utsugi0101 npm run e2e:check
 ```
+
+注意:
+- `BANSOU_GATE_API_TOKEN=...` と `BANSOU_SUB=...` の間に必ず半角スペースを入れてください。
+- スクリプトは先に `GET /gate/health` を確認し、サーバー未準備を警告します。
