@@ -46,7 +46,6 @@ jobs:
           issuer: ${{ steps.cfg.outputs.issuer }}
           jwks_url: ${{ steps.cfg.outputs.jwks_url }}
           required_quiz_id: core-pr
-          require_file_coverage: true
-          require_diff_hash_match: false
-          allow_ancestor_commit: true
+          gate_url: ${{ steps.cfg.outputs.issuer }}
+          gate_api_token: ${{ secrets.BANSOU_GATE_API_TOKEN }}
           github_token: ${{ github.token }}
