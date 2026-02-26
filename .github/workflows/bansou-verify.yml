@@ -1,0 +1,26 @@
+name: Verify BANSOU Token
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  bansou:
+    name: BANSOU Gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify attestation tokens
+        uses: Utsugi0101/bansou-action@v1
+        with:
+          issuer: ${{ vars.BANSOU_ISSUER }}
+          jwks_url: ${{ vars.BANSOU_JWKS_URL }}
+          required_quiz_id: core-pr
+          require_file_coverage: true
+          github_token: ${{ github.token }}
