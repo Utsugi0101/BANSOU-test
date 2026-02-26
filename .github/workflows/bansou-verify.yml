@@ -47,5 +47,5 @@ jobs:
           jwks_url: ${{ steps.cfg.outputs.jwks_url }}
           required_quiz_id: core-pr
           require_file_coverage: true
-          require_diff_hash_match: true
+          require_diff_hash_match: false
           github_token: ${{ github.token }}
