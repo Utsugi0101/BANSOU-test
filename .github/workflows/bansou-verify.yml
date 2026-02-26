@@ -13,14 +13,36 @@ jobs:
   bansou:
     name: BANSOU Gate
     runs-on: ubuntu-latest
+    env:
+      BANSOU_ISSUER_VAR: ${{ vars.BANSOU_ISSUER }}
+      BANSOU_JWKS_URL_VAR: ${{ vars.BANSOU_JWKS_URL }}
+      BANSOU_ISSUER_SECRET: ${{ secrets.BANSOU_ISSUER }}
+      BANSOU_JWKS_URL_SECRET: ${{ secrets.BANSOU_JWKS_URL }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Resolve BANSOU config
+        id: cfg
+        shell: bash
+        run: |
+          issuer="${BANSOU_ISSUER_VAR:-$BANSOU_ISSUER_SECRET}"
+          jwks_url="${BANSOU_JWKS_URL_VAR:-$BANSOU_JWKS_URL_SECRET}"
+
+          if [ -z "$issuer" ] || [ -z "$jwks_url" ]; then
+            echo "BANSOU_ISSUER/BANSOU_JWKS_URL is not set in variables or secrets." >&2
+            exit 1
+          fi
+
+          {
+            echo "issuer=$issuer"
+            echo "jwks_url=$jwks_url"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Verify attestation tokens
         uses: Utsugi0101/bansou-action@v1
         with:
-          issuer: ${{ vars.BANSOU_ISSUER }}
-          jwks_url: ${{ vars.BANSOU_JWKS_URL }}
+          issuer: ${{ steps.cfg.outputs.issuer }}
+          jwks_url: ${{ steps.cfg.outputs.jwks_url }}
           required_quiz_id: core-pr
           require_file_coverage: true
           github_token: ${{ github.token }}
