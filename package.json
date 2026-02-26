@@ -1,0 +1,8 @@
+{
+  "name": "bansou-test",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "e2e:check": "scripts/e2e-check.sh"
+  }
+}
