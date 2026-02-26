@@ -79,7 +79,7 @@ for f in "${CHANGED_FILES[@]:-}"; do
   if [[ "$nf" == scripts/* ]]; then
     continue
   fi
-  if [[ "$nf" =~ \.(md|markdown|json|yml|yaml|toml|ini|cfg|lock)$ ]]; then
+  if [[ "$nf" =~ \.(md|markdown|json|yml|yaml|toml|ini|cfg|lock|sh|bash|zsh)$ ]]; then
     continue
   fi
   ESSENTIAL_FILES+=("$nf")
