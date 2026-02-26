@@ -9,4 +9,4 @@ export function greet(name: string): string {
 export function multiply(a: number, b: number): number {
   return a * b;
 }
-// hoge
+
