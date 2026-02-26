@@ -48,4 +48,5 @@ jobs:
           required_quiz_id: core-pr
           require_file_coverage: true
           require_diff_hash_match: false
+          allow_ancestor_commit: false
           github_token: ${{ github.token }}
