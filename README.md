@@ -4,27 +4,32 @@ BANSOU の E2E 検証用リポジトリです。
 
 ## 目的
 
-- PR の変更に対して BANSOU attestation が必須になることを確認する
-- `require_file_coverage: true` で変更ファイルのカバレッジ検証を確認する
+- PR の変更に対して BANSOU の証明（server ledger）が必須になることを確認する
+- `gate_url` モードで変更ファイルのカバレッジ検証を確認する
 
-## 事前設定
+## 事前設定 (ledger mode)
 
 GitHub の Repository Variables に以下を設定してください。
 
 - `BANSOU_ISSUER`: 例 `https://<your-worker-domain>`
 - `BANSOU_JWKS_URL`: 例 `https://<your-worker-domain>/.well-known/jwks.json`
+- `BANSOU_GATE_URL`: 例 `https://<your-worker-domain>`
+
+GitHub の Repository Secrets に以下を設定してください。
+
+- `BANSOU_GATE_API_TOKEN`: `/gate/evaluate` 用トークン
 
 ## 検証手順
 
 1. このリポジトリでブランチを作り、`src/app.ts` を変更して PR を作成する
-2. VS Code 拡張 BANSOU でクイズに合格し、`.bansou/attestations/<commit>/*.jwt` を生成する
-3. 生成された `.jwt` を PR にコミットして push する
+2. VS Code 拡張 BANSOU でクイズに合格する（proofStorageMode は `serverOnly` 推奨）
+3. `npm run e2e:check` で `ok:true` になることを確認する
 4. `Verify BANSOU Token` ジョブが成功することを確認する
 
-## 失敗確認
+## 失敗確認 (ledger mode)
 
-- `.jwt` を削除して push すると失敗する
-- 変更ファイルに対応しない token だけ残すと失敗する
+- クイズ未合格のまま push すると `missing_files` で失敗する
+- `BANSOU_GATE_API_TOKEN` が不正なら 401 で失敗する
 
 ## 半自動チェック
 
